@@ -123,6 +123,7 @@ const DownloadButton = ({ project }: { project: string }) => {
       return;
     }
 
+    folder.file("__init__.py", "");
     for (let index = 0; index < file.files.length; index++) {
       const element = file.files[index];
       if (element.is_dir) {

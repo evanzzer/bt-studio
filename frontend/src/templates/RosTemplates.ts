@@ -94,11 +94,9 @@ const thirdparty = `repositories:
 const setupConfig = (name: string) => {
   return (
     `[develop]
-script_dir=$base/lib/ros_template
+script_dir=$base/lib/` + name + `
 [install]
-install_scripts=$base/lib/` +
-    name +
-    `
+install_scripts=$base/lib/` + name + `
 `
   );
 };
@@ -107,10 +105,9 @@ const setupPython = (name: string) => {
   return (
     `from setuptools import setup
 from setuptools import find_packages
+from glob import glob
 
-package_name = "` +
-    name +
-    `"
+package_name = "` + name + `"
 
 setup(
     name=package_name,
@@ -119,12 +116,8 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
-        (
-            "share/" + package_name + "/resource",
-            [
-                "resource/app_tree.xml",
-            ],
-        ),
+        ("share/" + package_name + "/resource", ["resource/app_tree.xml"]),
+        ("share/" + package_name + "/actions", glob("actions/*")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -144,7 +137,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "executor = ros_template.execute:main",
+            "executor = ` + name + `.execute:main",
         ],
     },
 )
@@ -166,7 +159,7 @@ class TreeExecutor(Node):
         super().__init__("tree_executor_node")
 
         # Get the path to the root of the package
-        pkg_share_dir = get_package_share_directory("ros_template")
+        pkg_share_dir = get_package_share_directory("` + name + `")
         tree_path = os.path.join(pkg_share_dir, "resource", "app_tree.xml")
         actions_path = os.path.join(pkg_share_dir, "actions")
 
